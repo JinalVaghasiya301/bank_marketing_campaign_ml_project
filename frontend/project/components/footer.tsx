@@ -41,7 +41,7 @@ export function Footer() {
                   href="/loan"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Term Deposite
+                  Analysis
                 </Link>
               </li>
                 <li>
@@ -49,7 +49,7 @@ export function Footer() {
                   href="/analysis"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Analysis
+                  Term Deposit
                 </Link>
               </li>
             </ul>

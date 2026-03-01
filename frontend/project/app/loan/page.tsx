@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -26,17 +25,9 @@ import {
   BarChart3,
   PieChart,
   Building,
-  Briefcase,
-  GraduationCap,
   CreditCard,
   Home,
-  Mail,
-  UserCheck,
-  Sparkles,
-  ArrowRight,
-  Zap,
-  Star,
-  RefreshCw 
+  Zap
 } from 'lucide-react';
 
 interface PredictionResult {
@@ -61,20 +52,14 @@ interface PredictionResult {
 export default function TermDepositPredictionPage() {
   const [formData, setFormData] = useState({
     age: '41',
-    job: 'management',
-    marital: 'married',
-    education: 'secondary',
     default: 'no',
     balance: '548',
     housing: 'no',
     loan: 'no',
     contact: 'cellular',
-    day: '15',
-    month: 'may',
     duration: '180',
     campaign: '2',
     pdays: '-1',
-    previous: '0',
     poutcome: 'unknown',
   });
 
@@ -196,7 +181,14 @@ export default function TermDepositPredictionPage() {
         <p className="text-sm mb-4 dark:text-gray-400 text-gray-600">{field.description}</p>
         
         {field.type === 'select' ? (
-          <Select value={formData[field.name as keyof typeof formData]} onValueChange={(value) => setFormData(prev => ({ ...prev, [field.name]: value }))}>
+          <Select 
+            value={formData[field.name as keyof typeof formData]} 
+            onValueChange={(value) => {
+              const newData = {...formData};
+              newData[field.name as keyof typeof formData] = value;
+              setFormData(newData);
+            }}
+          >
             <SelectTrigger className="w-full dark:bg-gray-700 bg-white dark:border-gray-600 border-gray-300 dark:text-white focus:ring-2 focus:ring-blue-500">
               <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
             </SelectTrigger>
@@ -212,7 +204,11 @@ export default function TermDepositPredictionPage() {
           <Input
             type={field.type}
             value={formData[field.name as keyof typeof formData]}
-            onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
+            onChange={(e) => {
+              const newData = {...formData};
+              newData[field.name as keyof typeof formData] = e.target.value;
+              setFormData(newData);
+            }}
             placeholder={field.placeholder}
             className="w-full dark:bg-gray-700 bg-white dark:border-gray-600 border-gray-300 dark:text-white focus:ring-2 focus:ring-blue-500"
           />
@@ -230,20 +226,14 @@ export default function TermDepositPredictionPage() {
     try {
       const payload = {
         age: parseFloat(formData.age),
-        job: formData.job,
-        marital: formData.marital,
-        education: formData.education,
         default: formData.default,
         balance: parseFloat(formData.balance),
         housing: formData.housing,
         loan: formData.loan,
         contact: formData.contact,
-        day: parseFloat(formData.day),
-        month: formData.month,
         duration: parseFloat(formData.duration),
         campaign: parseFloat(formData.campaign),
         pdays: parseFloat(formData.pdays),
-        previous: parseFloat(formData.previous),
         poutcome: formData.poutcome,
       };
 
@@ -288,72 +278,13 @@ export default function TermDepositPredictionPage() {
     }
   };
 
-  const ProbabilityChart = () => {
-    if (!result) return null;
-    
-    return (
-      <div className="dark:bg-gray-800 bg-white rounded-xl p-6 shadow-lg dark:border-gray-700 border border-gray-200">
-        <h3 className="text-xl font-bold mb-6 text-center dark:text-white text-gray-900">Probability Distribution</h3>
-        <div className="space-y-4">
-          <div>
-            <div className="flex justify-between mb-2">
-              <span className="font-medium dark:text-green-400 text-green-600">Will Subscribe to Term Deposit</span>
-              <span className="font-bold dark:text-green-400 text-green-600">{(result.probability_yes * 100).toFixed(1)}%</span>
-            </div>
-            <Progress value={result.probability_yes * 100} className="h-3" />
-          </div>
-          <div>
-            <div className="flex justify-between mb-2">
-              <span className="font-medium dark:text-red-400 text-red-600">Will Not Subscribe to Term Deposit</span>
-              <span className="font-bold dark:text-red-400 text-red-600">{(result.probability_no * 100).toFixed(1)}%</span>
-            </div>
-            <Progress value={result.probability_no * 100} className="h-3" />
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const RiskGauge = () => {
-    if (!result) return null;
-    
-    const getRiskColor = (score: number) => {
-      if (score <= 3) return 'dark:text-green-400 text-green-600';
-      if (score <= 6) return 'dark:text-yellow-400 text-yellow-600';
-      return 'dark:text-red-400 text-red-600';
-    };
-    
-    const getRiskLabel = (score: number) => {
-      if (score <= 3) return 'Low Risk';
-      if (score <= 6) return 'Medium Risk';
-      return 'High Risk';
-    };
-    
-    return (
-      <div className="dark:bg-gray-800 bg-white rounded-xl p-6 shadow-lg dark:border-gray-700 border border-gray-200">
-        <h3 className="text-xl font-bold mb-6 text-center dark:text-white text-gray-900">Risk Assessment</h3>
-        <div className="text-center">
-          <div className={`text-6xl font-bold mb-4 ${getRiskColor(result.risk_score)}`}>
-            {result.risk_score.toFixed(1)}
-          </div>
-          <div className={`text-lg font-medium ${getRiskColor(result.risk_score)}`}>
-            {getRiskLabel(result.risk_score)}
-          </div>
-          <div className="mt-4 text-sm dark:text-gray-400 text-gray-600">
-            Risk Score (1-10 scale)
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center p-3 bg-blue-100 dark:bg-blue-900 rounded-full mb-6">
-            <Sparkles className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <Zap className="h-8 w-8 text-blue-600 dark:text-blue-400" />
           </div>
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             Term Deposit Prediction
@@ -427,12 +358,12 @@ export default function TermDepositPredictionPage() {
                   >
                     {loading ? (
                       <>
-                        <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                         Analyzing Customer Data...
                       </>
                     ) : (
                       <>
-                        <Sparkles className="h-5 w-5 mr-2" />
+                        <Zap className="h-5 w-5 mr-2" />
                         Generate Prediction
                       </>
                     )}
@@ -452,41 +383,102 @@ export default function TermDepositPredictionPage() {
             </Alert>
           )}
 
-          {/* Prediction Result - Right after form */}
+          {/* Prediction Result - Complete Details */}
           {result && (
-            <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl overflow-hidden">
-              <div className={`bg-gradient-to-r p-8 text-center ${
-                  result.prediction === 'YES' 
-                    ? 'from-green-500 to-emerald-600' 
-                    : 'from-red-500 to-orange-600'
-                }`}>
-                <div className="text-6xl font-bold mb-3 text-white">
-                  {result.prediction === 'YES' ? '✅ YES' : '❌ NO'}
+            <div className="space-y-8">
+              {/* Main Prediction Card */}
+              <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl overflow-hidden">
+                <div className={`bg-gradient-to-r p-8 text-center ${
+                    result.prediction === 'YES' 
+                      ? 'from-green-500 to-emerald-600' 
+                      : 'from-red-500 to-orange-600'
+                  }`}>
+                  <div className="text-6xl font-bold mb-3 text-white">
+                    {result.prediction === 'YES' ? '✅ YES' : '❌ NO'}
+                  </div>
+                  <div className="text-white/90 text-xl">
+                    Will {result.prediction === 'YES' ? 'Subscribe' : 'Not Subscribe'} to Term Deposit
+                  </div>
+                  <div className="mt-4 text-white/80 text-lg">
+                    Confidence: {(result.confidence * 100).toFixed(1)}%
+                  </div>
                 </div>
-                <div className="text-white/90 text-xl">
-                  Will {result.prediction === 'YES' ? 'Subscribe' : 'Not Subscribe'} to Term Deposit
-                </div>
-              </div>
-            </Card>
-          )}
+              </Card>
 
-          {/* Additional Cards Grid */}
-          {result && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Charts Section */}
-              <div className="space-y-6">
-                <ProbabilityChart />
-                <RiskGauge />
+              {/* Detailed Results Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Probability Distribution */}
+                <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold dark:text-white text-gray-900 flex items-center">
+                      <BarChart3 className="h-6 w-6 mr-2" />
+                      Probability Distribution
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between mb-2">
+                          <span className="font-medium dark:text-green-400 text-green-600">Will Subscribe</span>
+                          <span className="font-bold dark:text-green-400 text-green-600">{(result.probability_yes * 100).toFixed(1)}%</span>
+                        </div>
+                        <Progress value={result.probability_yes * 100} className="h-3" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between mb-2">
+                          <span className="font-medium dark:text-red-400 text-red-600">Will Not Subscribe</span>
+                          <span className="font-bold dark:text-red-400 text-red-600">{(result.probability_no * 100).toFixed(1)}%</span>
+                        </div>
+                        <Progress value={result.probability_no * 100} className="h-3" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Risk Assessment */}
+                <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold dark:text-white text-gray-900 flex items-center">
+                      <Shield className="h-6 w-6 mr-2" />
+                      Risk Assessment
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="text-center">
+                      <div className={`text-6xl font-bold mb-4 ${
+                        result.risk_score <= 3 
+                          ? 'dark:text-green-400 text-green-600'
+                          : result.risk_score <= 6
+                          ? 'dark:text-yellow-400 text-yellow-600'
+                          : 'dark:text-red-400 text-red-600'
+                      }`}>
+                        {result.risk_score.toFixed(1)}
+                      </div>
+                      <div className={`text-lg font-medium ${
+                        result.risk_score <= 3 
+                          ? 'dark:text-green-400 text-green-600'
+                          : result.risk_score <= 6
+                          ? 'dark:text-yellow-400 text-yellow-600'
+                          : 'dark:text-red-400 text-red-600'
+                      }`}>
+                        {result.risk_score <= 3 ? 'Low Risk' : result.risk_score <= 6 ? 'Medium Risk' : 'High Risk'}
+                      </div>
+                      <div className="mt-4 text-sm dark:text-gray-400 text-gray-600">
+                        Risk Score (1-10 scale)
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
 
               {/* Key Factors */}
-              <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-800 dark:to-purple-800">
-                  <CardTitle className="text-xl font-bold text-white flex items-center">
+              <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold dark:text-white text-gray-900 flex items-center">
                     <Target className="h-6 w-6 mr-2" />
                     Key Prediction Factors
                   </CardTitle>
-                  <CardDescription className="text-blue-100 dark:text-blue-200">
+                  <CardDescription className="dark:text-gray-400 text-gray-600">
                     Variables influencing term deposit subscription likelihood
                   </CardDescription>
                 </CardHeader>
@@ -507,46 +499,41 @@ export default function TermDepositPredictionPage() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          )}
 
-          {/* Recommendation and Dataset Info */}
-          {result && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Recommendation */}
-              <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-800 dark:to-emerald-800">
-                  <CardTitle className="text-xl font-bold text-white flex items-center">
-                    <Sparkles className="h-6 w-6 mr-2" />
+              {/* Strategic Recommendation */}
+              <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold dark:text-white text-gray-900 flex items-center">
+                    <Zap className="h-6 w-6 mr-2" />
                     Strategic Recommendation
                   </CardTitle>
-                  <CardDescription className="text-green-100 dark:text-green-200">
+                  <CardDescription className="dark:text-gray-400 text-gray-600">
                     Personalized insights for term deposit conversion
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <div className="p-4 dark:bg-green-900/20 bg-green-50 rounded-lg border dark:border-green-700 border-green-200">
-                    <div className="whitespace-pre-line text-sm dark:text-green-100 text-green-800 leading-relaxed">
+                  <div className="p-4 dark:bg-blue-900/20 bg-blue-50 rounded-lg border dark:border-blue-700 border-blue-200">
+                    <div className="whitespace-pre-line text-sm dark:text-blue-100 text-blue-800 leading-relaxed">
                       {result.recommendation}
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Dataset Info */}
+              {/* Dataset Information */}
               {result.dataset_info && (
-                <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-800 dark:to-pink-800">
-                    <CardTitle className="text-xl font-bold text-white flex items-center">
-                      <BarChart3 className="h-6 w-6 mr-2" />
+                <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold dark:text-white text-gray-900 flex items-center">
+                      <PieChart className="h-6 w-6 mr-2" />
                       Dataset Information
                     </CardTitle>
-                    <CardDescription className="text-purple-100 dark:text-purple-200">
+                    <CardDescription className="dark:text-gray-400 text-gray-600">
                       UCI Bank Marketing Dataset specifications
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-6">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="p-4 dark:bg-purple-900/20 bg-purple-50 rounded-lg border dark:border-purple-700 border-purple-200">
                         <div className="text-xs dark:text-purple-400 text-purple-600 mb-1">Source</div>
                         <div className="text-sm font-bold dark:text-purple-100 text-purple-800">

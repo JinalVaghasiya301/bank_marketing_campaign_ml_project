@@ -107,7 +107,7 @@ export default function HomePage() {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="px-8 py-4 text-lg font-semibold border-gray-300 text-gray-900 hover:bg-gray-50 text-grey  rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300"
+                className="px-8 py-4 text-lg font-semibold border-gray-300 text-gray-900 hover:bg-gray-50 text-gray-600  rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300"
               >
                 Learn More
               </Button>
