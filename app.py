@@ -17,20 +17,6 @@ except Exception as e:
     model = None
     scaler = None
 
-# ================= CSV DATASET LOADING =================
-try:
-    csv_path = "bank.csv"   # change if your filename is different
-    dataset = pd.read_csv(csv_path, sep=';')  # use sep=',' if needed
-    TOTAL_INSTANCES = dataset.shape[0]
-    TOTAL_FEATURES = dataset.shape[1] - 1  # excluding target column 'y'
-    print("CSV dataset loaded successfully")
-except Exception as e:
-    print("Error loading CSV:", e)
-    dataset = None
-    TOTAL_INSTANCES = 45211
-    TOTAL_FEATURES = 16
-# =======================================================
-
 # UCI Bank Marketing Dataset Features (17 total)
 # bank client data: 1-8
 # contact data: 9-12  
@@ -100,11 +86,11 @@ POUTCOME_MAP = {'unknown': 0, 'other': 1, 'failure': 2, 'success': 3}
 def home():
     return jsonify({
         "message": "Bank Marketing Prediction API - UCI Dataset",
+        "dataset": "https://archive.ics.uci.edu/dataset/222/bank+marketing",
         "features": UCI_FEATURES,
         "target": "y - has the client subscribed a term deposit? (binary: yes/no)",
-        "dataset_loaded": True if dataset is not None else False,
-        "instances": TOTAL_INSTANCES,
-        "feature_count": TOTAL_FEATURES,
+        "instances": 45211,
+        "feature_count": 16
     })
 
 @app.route("/predict", methods=["POST"])
@@ -345,237 +331,11 @@ EXPECTED OUTCOME: No subscription possible with current input values""".format(
         if uci_data['duration'] < 60: risk_score += 1
         risk_score = round(min(10, max(1, risk_score)), 1)
         
-        # Strategic recommendations specifically for YES subscription predictions
+        # Simple recommendation message
         if result == "YES":
-            if prob_yes > 0.9:
-                recommendation = """🔥 PREMIUM SUBSCRIBER ({0:.1f}% Probability)
-
-KEY FEATURES DRIVING PREDICTION:
-• Balance €{2}: High financial capacity
-• Age {1}: Prime investment age group
-• education {3} : Sophisticated financial understanding
-• job  {4}: Stable income source
-• marital {5}: Family financial planning needs
-
-RISK REDUCTION ALREADY OPTIMAL: All key indicators positive
-
-EXPECTED: 95%+ conversion rate""".format(
-                    prob_yes * 100,
-                    uci_data['age'],
-                    uci_data['balance'],
-                    uci_data['education'].title(),
-                    uci_data['job'].title(),
-                    uci_data['marital'].title()
-                )
-            elif prob_yes > 0.8:
-                recommendation = """⭐ HIGH-VALUE SUBSCRIBER ({0:.1f}% Probability)
-
-KEY FEATURES DRIVING PREDICTION:
-• Duration {1}s: Good engagement level
-• Balance €{2}: Solid financial foundation
-• Age {3}: Optimal investment timing
-• Contact on day {4} with {5}: Optimal timing and channel
-• marital {6} : Household financial goals
-• education {7} : Adequate financial literacy
-
-TO REDUCE RISK: Maintain current engagement patterns
-
-EXPECTED: 85-95% conversion rate""".format(
-                    prob_yes * 100,
-                    uci_data['duration'],
-                    uci_data['balance'],
-                    uci_data['age'],
-                    uci_data['day'],
-                    uci_data['contact'],
-                    uci_data['marital'].title(),
-                    uci_data['education'].title()
-                )
-            elif prob_yes > 0.7:
-                recommendation = """🎯 QUALIFIED SUBSCRIBER ({0:.1f}% Probability)
-
-KEY FEATURES DRIVING PREDICTION:
-• Balance €{1}: Primary strength indicator
-• Age {2}: Good investment age
-• Duration {3}s: Moderate engagement
-• {4} job: Income stability factor
-• {5} marital: Joint planning potential
-• Campaign {6}: Manageable contact frequency
-
-TO REDUCE RISK: Increase call duration to 180s+ for better engagement
-
-EXPECTED: 70-85% conversion rate""".format(
-                    prob_yes * 100,
-                    uci_data['balance'],
-                    uci_data['age'],
-                    uci_data['duration'],
-                    uci_data['job'].title(),
-                    uci_data['marital'].title(),
-                    uci_data['campaign']
-                )
-            elif prob_yes > 0.6:
-                recommendation = """📈 PROMISING SUBSCRIBER ({0:.1f}% Probability)
-
-KEY FEATURES DRIVING PREDICTION:
-• Age {1}: Demographic advantage
-• {2} education: Basic financial understanding
-• {3} housing: Asset ownership indicator
-• Balance €{4}: Modest but sufficient
-• Duration {5}s: Needs improvement
-• {6} loan: Manageable debt level
-
-TO REDUCE RISK: Increase call duration to 120s+ and balance to €1000+
-
-EXPECTED: 60-75% conversion rate""".format(
-                    prob_yes * 100,
-                    uci_data['age'],
-                    uci_data['education'].title(),
-                    uci_data['housing'],
-                    uci_data['balance'],
-                    uci_data['duration'],
-                    uci_data['loan']
-                )
-            elif prob_yes > 0.5:
-                recommendation = """🌱 EMERGING SUBSCRIBER ({0:.1f}% Probability)
-
-KEY FEATURES DRIVING PREDICTION:
-• Age {1}: Young investor potential
-• {2} job: Entry-level position
-• {3} marital: Single financial planning
-• Duration {4}s: Low engagement - RISK FACTOR
-• Balance €{5}: Limited funds - RISK FACTOR
-• {6} default: Credit history concern - RISK FACTOR
-
-TO REDUCE RISK: 
-• Increase call duration to 180s+ (currently {4}s)
-• Build balance to €1000+ (currently €{5})
-• Address {6} default status with secured options
-
-EXPECTED: 50-70% conversion rate""".format(
-                    prob_yes * 100,
-                    uci_data['age'],
-                    uci_data['job'].title(),
-                    uci_data['marital'].title(),
-                    uci_data['duration'],
-                    uci_data['balance'],
-                    uci_data['default']
-                )
-            else:
-                # Check for low balance specifically
-                if uci_data['balance'] < 500:
-                    recommendation = """💰 LOW BALANCE ALERT ({0:.1f}% Probability)
-
-DYNAMIC TRIGGER: Activates when balance < €500
-✅ User-Specific: Shows actual balance value
-✅ Action-Oriented: Clear steps for improvement
-✅ Realistic: Honest conversion expectations
-✅ Professional: Financial counseling recommendations
-
-KEY FINANCIAL CONSTRAINTS:
-• Balance €{1}: CRITICAL INSUFFICIENCY - PRIMARY BARRIER
-• Current balance indicates immediate financial constraints
-• Unable to meet minimum investment requirements
-• High risk of financial distress
-
-IMMEDIATE ACTION REQUIRED:
-• CRITICAL: Build emergency fund first (3-6 months expenses)
-• CRITICAL: Increase income through additional employment
-• CRITICAL: Reduce unnecessary expenses immediately
-• CRITICAL: Consider financial counseling services
-
-PATH TO SUBSCRIPTION:
-• Step 1: Achieve €1000+ minimum balance
-• Step 2: Establish consistent savings pattern  
-• Step 3: Reduce high-interest debt
-• Step 4: Build investment foundation
-
-EXPECTED: 20-30% conversion rate (current constraints)""".format(
-                        prob_yes * 100,
-                        uci_data['balance']
-                    )
-                else:
-                    recommendation = """🔄 MARGINAL SUBSCRIBER ({0:.1f}% Probability)
-
-KEY FEATURES DRIVING PREDICTION:
-• Duration {1}s: Very low engagement - HIGH RISK
-• Balance €{2}: Insufficient funds - HIGH RISK
-• Age {3}: Young demographic - RISK FACTOR
-• Campaign {4}: Over-contacted - RISK FACTOR
-• {5} education: May need financial education
-• {6} loan: Existing debt burden - RISK FACTOR
-
-TO REDUCE RISK:
-• CRITICAL: Increase call duration to 500s+ (currently {1}s)
-• CRITICAL: Build balance to €2400+ (currently €{2})
-• Reduce campaign contacts to 1-3 (currently {4})
-• Age {3}: {5} - OPTIMAL for subscription
-• Address {6} loan before new commitments
-
-EXPECTED: 50-70% conversion rate""".format(
-                    prob_yes * 100,
-                    uci_data['duration'],
-                    uci_data['balance'],
-                    uci_data['age'],
-                    uci_data['campaign'],
-                    uci_data['education'].title(),
-                    uci_data['loan']
-                )
+            recommendation = f"Customer likely to subscribe to term deposit ({prob_yes * 100:.1f}% probability)"
         else:
-            # For NO predictions, keep the existing recommendations
-            if prob_yes < 0.2:
-                recommendation = """❌ LOW PRIORITY (0-20% Probability Range)
-                
-Very low conversion probability at {0:.1f}%.
-Key barriers: {1}
-
-STRATEGIC ACTIONS:
-• Add to long-term nurture campaign (6+ months)
-• Send periodic bank updates and newsletters
-• Focus on building brand awareness
-• Monitor for life changes (job, income, family)
-• Re-engage during special campaigns or rate changes
-• Consider alternative financial products that may fit better
-
-EXPECTED OUTCOME: Low immediate potential, maintain minimal contact""".format(
-                    prob_yes * 100,
-                    "Strong financial constraints" if uci_data['balance'] < 500 else "Low engagement and interest"
-                )
-            elif prob_yes < 0.4:
-                recommendation = """🔄 RE-ENGAGEMENT NEEDED (20-40% Probability Range)
-                
-Moderate resistance with {0:.1f}% probability.
-Obstacles: {1}
-
-STRATEGIC ACTIONS:
-• Re-approach in 3-4 months with different angle
-• Address specific concerns or objections
-• Offer trial period or flexible start options
-• Provide market insights and economic trends
-• Highlight limited-time promotional rates
-• Consider cross-selling other banking products first
-
-EXPECTED OUTCOME: Potential conversion with timing and approach adjustment""".format(
-                    prob_yes * 100,
-                    "Timing or product fit issues" if uci_data['campaign'] > 3 else "Insufficient information or trust"
-                )
-            else:
-                recommendation = """🎲 UNCERTAIN PROSPECT (40-50% Probability Range)
-                
-Borderline case at {0:.1f}% probability.
-Mixed indicators: {1}
-
-STRATEGIC ACTIONS:
-• Collect additional customer data and preferences
-• Test different communication channels and messages
-• Offer financial planning consultation
-• Monitor account activity for interest signals
-• Provide educational content about financial planning
-• Consider A/B testing different offers
-
-EXPECTED OUTCOME: Conversion depends on deeper customer understanding""".format(
-                    prob_yes * 100,
-                    "Conflicting signals in profile" if (uci_data['balance'] > 1000 and uci_data['duration'] < 60) else "Limited engagement data"
-                )
-        
+            recommendation = f"Customer unlikely to subscribe to term deposit ({prob_yes * 100:.1f}% probability)"
         # Comprehensive factors analysis based on actual data
         factors = []
         

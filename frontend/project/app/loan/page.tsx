@@ -431,25 +431,6 @@ export default function TermDepositPredictionPage() {
                 </CardContent>
               </Card>
 
-              <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold dark:text-white text-gray-900 flex items-center">
-                    <Zap className="h-6 w-6 mr-2" />
-                    Strategic Recommendation
-                  </CardTitle>
-                  <CardDescription className="dark:text-gray-400 text-gray-600">
-                    Personalized insights for term deposit conversion
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="p-4 dark:bg-blue-900/20 bg-blue-50 rounded-lg border dark:border-blue-700 border-blue-200">
-                    <div className="whitespace-pre-line text-sm dark:text-blue-100 text-blue-800 leading-relaxed">
-                      {result.recommendation}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
               {result.dataset_info && (
                 <Card className="dark:bg-gray-800 bg-white dark:border-gray-700 border-gray-200 shadow-2xl">
                   <CardHeader>
